@@ -1,5 +1,4 @@
-const { uniqid } = require('./util.js')
-const uid = require('uid-safe')
+const { uid } = require('./util.js')
 
 var games = {};
 
@@ -11,7 +10,7 @@ class Game {
 }
 
 function generateGame() {
-	var id = uid.sync(6);
+	var id = uid();
 	const game = new Game(id);
 	games[id] = game;
 	return game;
