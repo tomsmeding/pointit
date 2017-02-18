@@ -5,6 +5,9 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const { generateGame, games } = require('./room.js');
+const Player = require('./player.js');
+const Connection = require('./connection.js');
+const messageHandler = require('./messageHandler.js');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,6 +19,7 @@ function getStatic (name) {
 }
 
 app.use(express.static('static'));
+primus.save(getStatic('/js/primus.js'));
 
 app.get('/', function (req, res) {
 	res.sendFile(getStatic('/html/index.html'));
@@ -33,8 +37,13 @@ app.param('id', function (req, res, next, id) {
 app.get('/creategame', function (req, res) {
 	res.redirect(`/${generateGame().id}`);
 });
-app.get('/game/:id', function (req, res) {
-	res.end(req.game.id);
+app.get('/:id', function (req, res) {
+	res.sendFile(getStatic('/html/game.html'));
+});
+
+primus.on('connection', function (spark) {
+	const player = new Player(new Connection(spark));
+	player.connection.on('data', messageHandler(player));
 });
 
 server.listen(PORT, function () {

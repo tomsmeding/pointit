@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+	<head>
+		<title>PointIt!</title>
+		<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="/css/normalize.css" type="text/css" media="all" />
+		<link rel="stylesheet" href="/css/skeleton.css" type="text/css" media="all" />
+		<link rel="stylesheet" href="/css/main.css" type="text/css" media="all" />
+		<script src="/js/primus.js"></script>
+	</head>
+	<body>
+		<script>
+			var gameId = document.location.pathname.slice(1);
+			document.body.innerText = gameId;
+			var primus = Primus.connect();
+			primus.write({ id: 0, type: 'join-room', args: [ gameId ] });
+
+			primus.on('data', function () {
+				alert(arguments[0]);
+			});
+		</script>
+	</body>
+</html>
