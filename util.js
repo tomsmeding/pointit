@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-function uid (length = 6) {
+function uid (length = 5) {
 	const bytes = crypto.randomBytes(length)
 
 	let res = ''
