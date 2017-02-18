@@ -3,6 +3,7 @@ const PORT = 1337;
 const Primus = require('primus');
 const express = require('express');
 const http = require('http');
+const path = require('path');
 const { generateGame, games } = require('./room.js');
 
 const app = express();
@@ -10,10 +11,14 @@ const server = http.createServer(app);
 
 const primus = new Primus(server, { transformer: 'websockets' });
 
+function getStatic (name) {
+	return path.join(__dirname, '/static/', name);
+}
+
 app.use(express.static('static'));
 
 app.get('/', function (req, res) {
-	res.sendFile(__dirname + '/static/html/index.html');
+	res.sendFile(getStatic('/html/index.html'));
 });
 
 app.param('id', function (req, res, next, id) {
@@ -25,8 +30,8 @@ app.param('id', function (req, res, next, id) {
 	req.game = game;
 	next();
 });
-app.get('/game/create', function (req, res) {
-	res.redirect(`/game/${generateGame().id}`);
+app.get('/creategame', function (req, res) {
+	res.redirect(`/${generateGame().id}`);
 });
 app.get('/game/:id', function (req, res) {
 	res.end(req.game.id);
