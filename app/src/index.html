@@ -7,18 +7,10 @@
 		<link rel="stylesheet" href="/css/normalize.css" type="text/css" media="all" />
 		<link rel="stylesheet" href="/css/skeleton.css" type="text/css" media="all" />
 		<link rel="stylesheet" href="/css/main.css" type="text/css" media="all" />
-		<script src="/js/primus.js"></script>
+		<script src="/_primus.js"></script>
 	</head>
 	<body>
-		<script>
-			var gameId = document.location.pathname.slice(1);
-			document.body.innerText = gameId;
-			var primus = Primus.connect();
-			primus.write({ id: 0, type: 'join-room', args: [ gameId ] });
-
-			primus.on('data', function () {
-				alert(arguments[0]);
-			});
-		</script>
+		PointIt! is loading...
+		<script src="/bundle.js"></script>
 	</body>
 </html>

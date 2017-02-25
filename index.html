@@ -40,5 +40,19 @@
 		<div class="footer">
 			<a class="button" href="/creategame">Create a new game</a>
 		</div>
+
+		<script>
+			const input = document.getElementsByTagName('input')[0];
+			const button = document.getElementsByTagName('button')[0];
+
+			if (document.location.hash === '#error') {
+				input.classList.add('error');
+			}
+
+			button.addEventListener('click', function (event) {
+				event.preventDefault();
+				document.location.href = '/' + input.value;
+			});
+		</script>
 	</body>
 </html>

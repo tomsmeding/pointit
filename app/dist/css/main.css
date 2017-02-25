@@ -10,3 +10,7 @@ input, textarea, select, fieldset {
 * {
 	border-radius: 0 !important;
 }
+
+input.error {
+	border-color: red !important;
+}

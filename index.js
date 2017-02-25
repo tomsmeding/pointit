@@ -14,21 +14,21 @@ const server = http.createServer(app);
 
 const primus = new Primus(server, { transformer: 'websockets' });
 
-function getStatic (name) {
-	return path.join(__dirname, '/static/', name);
+function getFile (name) {
+	return path.join(__dirname, name);
 }
 
-app.use(express.static('static'));
-primus.save(getStatic('/js/primus.js'));
+app.use(express.static('./app/dist/'));
+primus.save(getFile('app/dist/_primus.js'));
 
 app.get('/', function (req, res) {
-	res.sendFile(getStatic('/html/index.html'));
+	res.sendFile(getFile('index.html'));
 });
 
 app.param('id', function (req, res, next, id) {
 	const game = games[id];
 	if (game === undefined) {
-		res.status(404).end('game not found lol xD');
+		res.redirect('/#error');
 		return;
 	}
 	req.game = game;
@@ -38,7 +38,7 @@ app.get('/creategame', function (req, res) {
 	res.redirect(`/${generateGame().id}`);
 });
 app.get('/:id', function (req, res) {
-	res.sendFile(getStatic('/html/game.html'));
+	res.sendFile(getFile('app/src/index.html'));
 });
 
 primus.on('connection', function (spark) {

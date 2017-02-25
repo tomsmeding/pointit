@@ -18,7 +18,16 @@ var uniqid = (function () {
 	};
 })()
 
+async function sleep (ms) {
+	await new Promise(resolve => {
+		setTimeout(function () {
+			resolve();
+		}, ms);
+	});
+}
+
 module.exports = {
 	uid,
 	uniqid,
+	sleep,
 };
