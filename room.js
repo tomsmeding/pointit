@@ -9,18 +9,18 @@ class Game {
 		this.players = [];
 	}
 
-	async addPlayer(player) {
+	addPlayer(player) {
 		const id = player.id;
 
 		if (this.players.some(p => p.id === id)) {
 			throw new Error('player already in game');
 		}
 
-		await this.broadcast('join', id);
+		this.broadcast('join', id);
 		this.players.push(player);
 	}
 
-	async removePlayer(player) {
+	removePlayer(player) {
 		const id = player.id;
 
 		if (!this.players.some(p => p.id === id)) {
@@ -28,12 +28,12 @@ class Game {
 		}
 
 		_.remove(this.players, { id });
-		await this.broadcast('leave', id);
+		this.broadcast('leave', id);
 	}
 
-	async broadcast(type, ...args) {
+	broadcast(type, ...args) {
 		for (const player of this.players) {
-			await p.send(type, this.id, ...args);
+			player.send(type, this.id, ...args);
 		}
 	}
 }

@@ -9,25 +9,25 @@ module.exports = function (player) {
 			conn.id = data.id;
 		}
 
-		async function reply (type, ...args) {
-			await player.connection.spark.write({
+		function reply (type, ...args) {
+			player.connection.spark.write({
 				id: data.id,
 				type,
 				args,
 			});
 		}
 
-		async function ok (...args) {
-			return await reply('ok', ...args);
+		function ok (...args) {
+			return reply('ok', ...args);
 		}
-		async function error (...args) {
-			return await reply('error', ...args);
+		function error (...args) {
+			return reply('error', ...args);
 		}
 
 		try {
 			switch (data.type) {
 			case 'join-room':
-				await games[data.args[0]].addPlayer(player);
+				games[data.args[0]].addPlayer(player);
 				break;
 			}
 			await util.sleep(3000); // TODO: REMOVE THIS, emulates a slow network.

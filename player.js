@@ -6,8 +6,8 @@ class Player {
 		this.connection = connection;
 	}
 
-	async send(...args) {
-		return await this.connection.send(...args);
+	send(...args) {
+		return this.connection.send(...args);
 	}
 }
 

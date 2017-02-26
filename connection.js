@@ -8,8 +8,8 @@ class Connection {
 		return this.spark.on(type, fn);
 	}
 
-	async send(type, ...args) {
-		await this.spark.write({
+	send(type, ...args) {
+		this.spark.write({
 			id: ++this.currentId,
 			type,
 			args,
