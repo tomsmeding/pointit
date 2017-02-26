@@ -13,7 +13,8 @@ window.Connection = {
 	send(type, ...args) {
 		const id = this.id++;
 
-		const callback = args.find(a => typeof a === 'function');
+		const last = args[args.length - 1];
+		const callback = typeof last === 'function' && last;
 		if (callback != null) {
 			this.idHandlers[id] = this.idHandlers[id] || [];
 			this.idHandlers[id].push(callback);
