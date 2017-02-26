@@ -1,14 +1,15 @@
 /* global Primus */
 
 import App from './app.js'
+import { ArrayMap } from './utils.js'
 import m from 'mithril'
 
 const primus = Primus.connect();
 
 window.Connection = {
 	id: 0,
-	handlers: {},
-	idHandlers: {},
+	handlers: new ArrayMap(),
+	idHandlers: new ArrayMap(),
 
 	send(type, ...args) {
 		const id = this.id++;
@@ -16,8 +17,7 @@ window.Connection = {
 		const last = args[args.length - 1];
 		const callback = typeof last === 'function' && last;
 		if (callback != null) {
-			this.idHandlers[id] = this.idHandlers[id] || [];
-			this.idHandlers[id].push(callback);
+			this.idHandlers.push(id, callback);
 		}
 
 		primus.write({
@@ -28,8 +28,7 @@ window.Connection = {
 	},
 
 	on(type, fn) {
-		this.handlers[type] = this.handlers[type] || [];
-		this.handlers[type].push(fn);
+		this.handlers.push(type, fn);
 	},
 };
 primus.on('data', function (data) {
@@ -40,13 +39,12 @@ primus.on('data', function (data) {
 	}
 
 	if (data.type === 'ok' || data.type === 'error') {
-		const handler = conn.idHandlers[data.id];
-		for (const fn of handler) {
+		for (const fn of conn.idHandlers.get(data.id)) {
 			fn(data);
 		}
-		delete conn.idHandlers[data.id];
+		conn.idHandlers.remove(data.id);
 	} else {
-		for (const fn of conn.handlers[data.type]) {
+		for (const fn of conn.handlers.get(data.type)) {
 			fn(data);
 		}
 	}
