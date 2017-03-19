@@ -1,25 +1,43 @@
 import m from 'mithril'
-import Room from './views/room.js'
+import RoomView from './views/room.js'
+import GameView from './views/game.js'
+import Header from './components/header.js'
+import Game from './game.js'
+import Loading from './components/loading.js'
 
 export default {
+	loading: true,
+
 	oninit(vnode) {
-		this.roomId = document.location.pathname.slice(1);
+		const roomId = document.location.pathname.slice(1);
 
-		this.state = {
-			room: undefined,
-			joining: true,
-		};
-
-		window.Connection.send('join-room', this.roomId, () => {
-			this.state.joining = false;
+		window.Connection.send('room.join', roomId, (error, res) => {
+			if (error != null) {
+				console.error(error);
+			} else {
+				vnode.state.loading = false;
+				window.state.game = Game.parse(window.Connection, res);
+			}
 		});
 	},
 
 	view(vnode) {
-		return m('div', { className: 'shell' }, [
-			this.state.joining ?
-				'Joining room...' :
-				m(Room, { roomId: this.roomId }),
+		const game = window.state.game;
+
+		return m('div#app', [
+			m(Header, { game }),
+
+			vnode.state.loading ?
+				m(Loading) :
+				m('div#content', [
+					game.started ?
+						m(GameView, {
+							game,
+						}) :
+						m(RoomView, {
+							room: game,
+						}),
+				]),
 		]);
 	},
 }

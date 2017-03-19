@@ -12,7 +12,7 @@ export class ArrayMap {
 	}
 
 	get(key) {
-		return this._map.get(key);
+		return this._map.get(key) || [];
 	}
 
 	remove(key) {

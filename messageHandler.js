@@ -1,40 +1,110 @@
-const util = require('./util.js');
-const { games } = require('./room.js');
+const { sendAndWaitAll } = require('./util.js');
+const { getGame } = require('./room.js');
 
 module.exports = function (player) {
 	const conn = player.connection;
+	let game = null;
 
 	return async function (data) {
 		if (conn.id < data.id) {
 			conn.id = data.id;
 		}
 
-		function reply (type, ...args) {
-			player.connection.spark.write({
+		function res (e, r) {
+			conn.spark.write({
 				id: data.id,
-				type,
-				args,
+				type: 'res',
+				args: [ e, r ],
 			});
 		}
 
-		function ok (...args) {
-			return reply('ok', ...args);
-		}
-		function error (...args) {
-			return reply('error', ...args);
+		switch (data.type) {
+		case 'res':
+			conn._resultHandlers.get(data.id)(...data.args);
+			conn._resultHandlers.delete(data.id);
+			break;
+
+		case 'room.get':
+			res(null, game);
+			break;
+		case 'room.join':
+			game = getGame(data.args[0]);
+			if (game == null) {
+				res('room-not-found', null);
+				return;
+			}
+
+			game.addPlayer(player);
+
+			res(null, game);
+			break;
+		case 'room.leave':
+			try {
+				game.removePlayer(player);
+				game = null;
+				res(null);
+			} catch (e) {
+				res('not-in-room', null);
+			}
+			break;
+
+		case 'nick.get':
+			res(null, player.nickname);
+			break;
+		case 'nick.set': {
+			const prev = player.nickname;
+			const next = data.args[0];
+
+			if (prev === next) {
+				res(null, next);
+				return;
+			}
+
+			player.nickname = next;
+			game.broadcast('nick.set', player.id, player.nickname);
+			res(null, next);
+			break;
 		}
 
-		try {
-			switch (data.type) {
-			case 'join-room':
-				games[data.args[0]].addPlayer(player);
-				break;
+		case 'ready.set':
+			player.ready = data.args[0];
+			game.broadcast('player.ready', player.id, player.ready);
+			res(null);
+
+			if (
+				!game.started &&
+				game.players.length >= game.settings.minimalPlayers &&
+				game.players.every(p => p.ready)
+			) {
+				const countdownTime = game.settings.countdownTime;
+
+				const startDate = new Date();
+				startDate.setSeconds(startDate.getSeconds() + countdownTime);
+
+				// TODO: some code to stop the countdown and stuff.
+				try {
+					await sendAndWaitAll(
+						game.players.map(p => p.connection),
+						'game.countdown.start',
+						[ startDate.getTime() ],
+						(countdownTime-1) * 1000
+					);
+					setTimeout(function () {
+						game.started = true;
+						game.broadcast('game.start');
+					}, countdownTime * 1000);
+				} catch (e) {
+					// TODO: one or more clients didn't reply, handle this,
+					// someone probably lost their connection or their device is
+					// super slow...
+				}
 			}
-			await util.sleep(3000); // TODO: REMOVE THIS, emulates a slow network.
-			ok();
-		} catch (e) {
-			console.error(e);
-			error(e.message);
+
+			break;
+
+		default:
+			res('unknown-command');
+			break;
 		}
 	};
 }

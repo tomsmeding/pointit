@@ -1,22 +1,37 @@
 /* global Primus */
 
+import m from 'mithril'
+import _ from 'lodash'
 import App from './app.js'
 import { ArrayMap } from './utils.js'
-import m from 'mithril'
 
 const primus = Primus.connect();
 
+// TODO
+window.state = {
+	nickname: 'kaas',
+	game: null,
+};
+
 window.Connection = {
-	id: 0,
+	id: -1,
 	handlers: new ArrayMap(),
 	idHandlers: new ArrayMap(),
 
+	reply(id, ...args) {
+		primus.write({
+			id,
+			type: 'res',
+			args,
+		});
+	},
+
 	send(type, ...args) {
-		const id = this.id++;
+		const id = ++this.id;
 
 		const last = args[args.length - 1];
 		const callback = typeof last === 'function' && last;
-		if (callback != null) {
+		if (callback) {
 			this.idHandlers.push(id, callback);
 		}
 
@@ -30,6 +45,11 @@ window.Connection = {
 	on(type, fn) {
 		this.handlers.push(type, fn);
 	},
+
+	once(type, fn) {
+		// HACK?
+		this.handlers.push(type, _.once(fn));
+	},
 };
 primus.on('data', function (data) {
 	const conn = window.Connection;
@@ -38,15 +58,21 @@ primus.on('data', function (data) {
 		conn.id = data.id;
 	}
 
-	if (data.type === 'ok' || data.type === 'error') {
+	if (data.type === 'res') {
 		for (const fn of conn.idHandlers.get(data.id)) {
-			fn(data);
+			fn(...data.args);
 		}
 		conn.idHandlers.remove(data.id);
 	} else {
-		for (const fn of conn.handlers.get(data.type)) {
-			fn(data);
+		let error;
+		try {
+			for (const fn of conn.handlers.get(data.type)) {
+				fn(...data.args);
+			}
+		} catch (e) {
+			error = e.toString();
 		}
+		conn.reply(data.id, error, null);
 	}
 
 	m.redraw();

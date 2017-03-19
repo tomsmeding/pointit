@@ -4,11 +4,23 @@ const { uid } = require('./util.js');
 var games = {};
 
 class Game {
-	constructor(id) {
+	/**
+	 * @param {String} id
+	 * @param {Object} [settings]
+	 */
+	constructor(id, settings) {
 		this.id = id;
 		this.players = [];
+		this.settings = _.defaults(settings, {
+			mode: 'point', // one of: point, list
+			countdownTime: 5, // in seconds
+			minimalPlayers: 3,
+		});
 	}
 
+	/**
+	 * @param {Player} player
+	 */
 	addPlayer(player) {
 		const id = player.id;
 
@@ -16,10 +28,13 @@ class Game {
 			throw new Error('player already in game');
 		}
 
-		this.broadcast('join', id);
+		this.broadcast('game.join', player);
 		this.players.push(player);
 	}
 
+	/**
+	 * @param {Player} player
+	 */
 	removePlayer(player) {
 		const id = player.id;
 
@@ -28,9 +43,15 @@ class Game {
 		}
 
 		_.remove(this.players, { id });
-		this.broadcast('leave', id);
+		this.broadcast('game.leave', id);
 	}
 
+	/**
+	 * Brodcasts a message with the given type, the current room id and args to
+	 * every player in this room.
+	 * @param {String} type
+	 * @param {String} [args...]
+	 */
 	broadcast(type, ...args) {
 		for (const player of this.players) {
 			player.send(type, this.id, ...args);
@@ -38,15 +59,28 @@ class Game {
 	}
 }
 
+/**
+ * @return {Game}
+ */
 function generateGame() {
-	var id = uid();
-	const game = new Game(id);
+	var id = uid().toUpperCase();
+	// const game = new Game(id);
+	const game = new Game(id, { minimalPlayers: 1 });
 	games[id] = game;
 	return game;
+}
+
+/**
+ * @param {String} id
+ * @return {Game}
+ */
+function getGame(id) {
+	return games[id.toUpperCase()];
 }
 
 module.exports = {
 	games,
 	Game,
 	generateGame,
+	getGame,
 };
