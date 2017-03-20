@@ -1,7 +1,6 @@
 /* global Primus */
 
 import m from 'mithril'
-import _ from 'lodash'
 import App from './app.js'
 import { ArrayMap } from './utils.js'
 
@@ -17,6 +16,7 @@ window.state = {
 window.Connection = {
 	id: -1,
 	handlers: new ArrayMap(),
+	onceHandlers: new ArrayMap(),
 	idHandlers: new ArrayMap(),
 
 	reply(id, ...args) {
@@ -49,8 +49,7 @@ window.Connection = {
 	},
 
 	once(type, fn) {
-		// HACK?
-		this.handlers.push(type, _.once(fn));
+		this.onceHandlers.push(type, fn);
 	},
 };
 primus.on('data', function (data) {
@@ -71,11 +70,17 @@ primus.on('data', function (data) {
 			for (const fn of conn.handlers.get(data.type)) {
 				fn(...data.args);
 			}
+
+			for (const fn of conn.onceHandlers.get(data.type)) {
+				fn(...data.args);
+			}
 		} catch (e) {
 			console.error(e);
 			error = e.toString();
 		}
+
 		conn.reply(data.id, error, null);
+		conn.onceHandlers.remove(data.type);
 	}
 
 	m.redraw();
