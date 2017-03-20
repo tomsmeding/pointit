@@ -15,6 +15,7 @@ class Game {
 			mode: 'point', // one of: point, list
 			countdownTime: 5, // in seconds
 			minimalPlayers: 3,
+			allowLateJoin: false, // allow join after game has been started.
 		});
 	}
 

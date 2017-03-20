@@ -31,6 +31,9 @@ module.exports = function (player) {
 			if (game == null) {
 				res('room-not-found', null);
 				return;
+			} else if (game.started && !game.settings.allowLateJoin) {
+				res('game-started', null);
+				return;
 			}
 
 			game.addPlayer(player);

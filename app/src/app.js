@@ -4,9 +4,11 @@ import GameView from './views/game.js'
 import Header from './components/header.js'
 import Game from './game.js'
 import Loading from './components/loading.js'
+import FullscreenMessage from './components/fullscreenMessage.js'
 
 export default {
 	loading: true,
+	error: null,
 
 	oninit(vnode) {
 		const roomId = document.location.pathname.slice(1);
@@ -15,7 +17,7 @@ export default {
 			vnode.state.loading = false;
 
 			if (error != null) {
-				console.error(error);
+				vnode.state.error = error;
 			} else {
 				window.state.game = Game.parse(window.Connection, res);
 			}
@@ -27,6 +29,14 @@ export default {
 
 		if (vnode.state.loading) {
 			return m('#app', m(Loading));
+		} else if (vnode.state.error != null) {
+			const message = m(FullscreenMessage, {
+				type: 'error',
+			}, ({
+				'game-started': 'Game has already been started!',
+			})[vnode.state.error]);
+
+			return m('#app', message);
 		}
 
 		return m('#app', [
