@@ -55,11 +55,26 @@ module.exports = function (player) {
 			break;
 		case 'nick.set': {
 			const prev = player.nickname;
-			const next = data.args[0];
+			let next = data.args[0];
 
 			if (prev === next) {
 				res(null, next);
 				return;
+			}
+
+			const reg = new RegExp(`^${_.escapeRegExp(next)}(\\(\\d\\))?$`);
+			const num = _.chain(game.players)
+				.map(p => reg.exec(p.nickname))
+				.compact()
+				.map(match =>
+					match[1] ?
+						Number.parseInt(match[1].replace(/\W/g, ''), 10) :
+						0
+				)
+				.max()
+				.value();
+			if (num != null) {
+				next += `(${num + 1})`;
 			}
 
 			player.nickname = next;
