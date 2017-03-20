@@ -2,6 +2,14 @@ import m from 'mithril'
 import NameInput from '../components/nameInput.js'
 import Countdown from '../components/countdown.js'
 
+// TODO
+const PlayerRow = {
+	view(vnode) {
+		const player = vnode.attrs.player;
+		return m('div', `${player.nickname}---${player.ready ? 'ready' : 'unready'}`);
+	},
+};
+
 export default {
 	timeLeft: null,
 
@@ -15,6 +23,11 @@ export default {
 			window.Connection.once('game.start', () => {
 				clearInterval(intervalId);
 			});
+		});
+
+		window.Connection.on('player.ready', (gameId, playerId, ready) => {
+			const game = window.state.game;
+			game.players.find(p => p.id === playerId).ready = ready;
 		});
 	},
 
@@ -37,6 +50,10 @@ export default {
 				}),
 				checked: self.ready,
 			}),
+
+			m('.playerList', game.players.map(player => {
+				return m(PlayerRow, { player });
+			})),
 		]);
 	},
 }
