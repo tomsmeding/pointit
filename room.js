@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const { uid } = require('./util.js');
+const { uid, sendAndWaitAll } = require('./util.js');
 
 var games = {};
 
@@ -56,6 +56,15 @@ class Game {
 		for (const player of this.players) {
 			player.send(type, this.id, ...args);
 		}
+	}
+
+	broadcastAndWait(timeout, type, ...args) {
+		return sendAndWaitAll(
+			this.players.map(p => p.connection),
+			type,
+			args,
+			timeout,
+		);
 	}
 }
 

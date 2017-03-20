@@ -1,4 +1,3 @@
-const { sendAndWaitAll } = require('./util.js');
 const { getGame } = require('./room.js');
 
 module.exports = function (player) {
@@ -83,11 +82,11 @@ module.exports = function (player) {
 
 				// TODO: some code to stop the countdown and stuff.
 				try {
-					await sendAndWaitAll(
-						game.players.map(p => p.connection),
+					await game.broadcastAndWait(
+						(countdownTime-1) * 1000,
 						'game.countdown.start',
-						[ game.id, startDate.getTime() ],
-						(countdownTime-1) * 1000
+						game.id,
+						startDate.getTime(),
 					);
 					setTimeout(function () {
 						game.started = true;
