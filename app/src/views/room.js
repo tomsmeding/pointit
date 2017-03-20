@@ -24,11 +24,6 @@ export default {
 				clearInterval(intervalId);
 			});
 		});
-
-		window.Connection.on('player.ready', (gameId, playerId, ready) => {
-			const game = window.state.game;
-			game.players.find(p => p.id === playerId).ready = ready;
-		});
 	},
 
 	view(vnode) {

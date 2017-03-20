@@ -4,12 +4,15 @@ export default class Player {
 		this.nickname = '';
 		this.ready = false;
 
-		window.Connection.on('nick.set', (gameId, playerId, nickname) => {
-			if (this.id === playerId) {
-				console.log('hit');
-				this.nickname = nickname;
-			}
-		});
+		const createEventBinding = (event, field) => {
+			window.Connection.on(event, (gameId, playerId, val) => {
+				if (this.id === playerId) {
+					this[field] = val;
+				}
+			});
+		};
+		createEventBinding('player.ready', 'ready');
+		createEventBinding('nick.set', 'nickname');
 	}
 
 	static parse(raw) {
