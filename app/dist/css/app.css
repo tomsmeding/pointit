@@ -1,0 +1,50 @@
+#app {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #fbfbfb;
+}
+
+#header {
+	padding: 10px;
+	background-color: #33C3F0;
+	border-bottom: 1px #217d9a solid;
+	color: white;
+	font-size: 130%;
+}
+
+#content {
+	padding: 10px;
+}
+
+#gameId {
+	letter-spacing: .1em;
+	font-family: Consolas, monaco, monospace;
+}
+
+.fullscreenNotice {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	text-align: center;
+	line-height: 100vh;
+
+	-webkit-font-smoothing: antialiased;
+}
+
+.fullscreenNotice.countdown {
+	background-color: rgba(0, 0, 0, .6);
+	color: white;
+	font-size: 500%;
+}
+
+.fullscreenNotice.error {
+	background-color: rgb(255, 100, 100);
+	color: white;
+	font-size: 300%;
+}
