@@ -33,6 +33,7 @@ window.Connection = {
 		const callback = typeof last === 'function' && last;
 		if (callback) {
 			this.idHandlers.push(id, callback);
+			args.pop();
 		}
 
 		primus.write({
