@@ -78,7 +78,7 @@ module.exports = function (player) {
 			}
 
 			player.nickname = next;
-			game.broadcast('nick.set', player.id, player.nickname);
+			game.broadcast('player.nick', player.id, player.nickname);
 			res(null, next);
 			break;
 		}

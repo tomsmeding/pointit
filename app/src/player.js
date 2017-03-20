@@ -12,7 +12,7 @@ export default class Player {
 			});
 		};
 		createEventBinding('player.ready', 'ready');
-		createEventBinding('nick.set', 'nickname');
+		createEventBinding('player.nick', 'nickname');
 	}
 
 	static parse(raw) {
