@@ -1,9 +1,9 @@
 {
-    "presets": [
-        ["es2015-rollup"]
-    ],
-    "plugins": [
-        "transform-strict-mode",
+	"presets": [
+		["es2015-rollup"]
+	],
+	"plugins": [
+		"transform-strict-mode",
 		"lodash"
-    ]
+	]
 }

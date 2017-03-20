@@ -9,7 +9,7 @@ const primus = Primus.connect();
 
 // TODO
 window.state = {
-	nickname: 'kaas',
+	nickname: '',
 	game: null,
 };
 
@@ -70,6 +70,7 @@ primus.on('data', function (data) {
 				fn(...data.args);
 			}
 		} catch (e) {
+			console.error(e);
 			error = e.toString();
 		}
 		conn.reply(data.id, error, null);

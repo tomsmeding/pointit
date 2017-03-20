@@ -5,7 +5,7 @@ class Player {
 	constructor(connection) {
 		this.id = uid(10);
 		this.connection = connection;
-		this.nickname = '';
+		this.nickname = `Player_${uid(4)}`;
 	}
 
 	send(...args) {

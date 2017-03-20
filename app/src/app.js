@@ -12,10 +12,11 @@ export default {
 		const roomId = document.location.pathname.slice(1);
 
 		window.Connection.send('room.join', roomId, (error, res) => {
+			vnode.state.loading = false;
+
 			if (error != null) {
 				console.error(error);
 			} else {
-				vnode.state.loading = false;
 				window.state.game = Game.parse(window.Connection, res);
 			}
 		});
@@ -24,20 +25,22 @@ export default {
 	view(vnode) {
 		const game = window.state.game;
 
-		return m('div#app', [
+		if (vnode.state.loading) {
+			return m('#app', m(Loading));
+		}
+
+		return m('#app', [
 			m(Header, { game }),
 
-			vnode.state.loading ?
-				m(Loading) :
-				m('div#content', [
-					game.started ?
-						m(GameView, {
-							game,
-						}) :
-						m(RoomView, {
-							room: game,
-						}),
-				]),
+			m('#content', [
+				game.started ?
+					m(GameView, {
+						game,
+					}) :
+					m(RoomView, {
+						room: game,
+					}),
+			]),
 		]);
 	},
 }

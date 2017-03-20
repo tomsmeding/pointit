@@ -1,5 +1,6 @@
 const PORT = 1337;
 
+const _ = require('lodash');
 const Primus = require('primus');
 const express = require('express');
 const http = require('http');
@@ -44,14 +45,12 @@ app.get('/:id', function (req, res) {
 primus.on('connection', function (spark) {
 	const player = new Player(new Connection(spark));
 	player.connection.on('data', messageHandler(player));
-	player.connection.on('disconnection', function () {
-		for (const key in games) {
-			const game = games[key];
-			const contains = game.players.some(p => p.id === player.id);
-			if (contains) {
-				game.removePlayer(player);
-			}
-		}
+	player.connection.on('end', function () {
+		_.chain(games)
+			.values()
+			.filter(g => g.players.some(p => p.id === player.id))
+			.value()
+			.forEach(g => g.removePlayer(player));
 	});
 });
 

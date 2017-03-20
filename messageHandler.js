@@ -86,7 +86,7 @@ module.exports = function (player) {
 					await sendAndWaitAll(
 						game.players.map(p => p.connection),
 						'game.countdown.start',
-						[ startDate.getTime() ],
+						[ game.id, startDate.getTime() ],
 						(countdownTime-1) * 1000
 					);
 					setTimeout(function () {

@@ -28,8 +28,8 @@ class Game {
 			throw new Error('player already in game');
 		}
 
-		this.broadcast('game.join', player);
 		this.players.push(player);
+		this.broadcast('game.join', player);
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Game {
 	}
 
 	/**
-	 * Brodcasts a message with the given type, the current room id and args to
+	 * Broadcasts a message with the given type, the current room id and args to
 	 * every player in this room.
 	 * @param {String} type
 	 * @param {String} [args...]
