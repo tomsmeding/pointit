@@ -64,7 +64,7 @@ class Game {
 			this.players.map(p => p.connection),
 			type,
 			args,
-			timeout,
+			timeout
 		);
 	}
 }

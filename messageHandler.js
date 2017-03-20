@@ -104,7 +104,7 @@ module.exports = function (player) {
 						(countdownTime-1) * 1000,
 						'game.countdown.start',
 						game.id,
-						startDate.getTime(),
+						startDate.getTime()
 					);
 					setTimeout(function () {
 						game.started = true;
