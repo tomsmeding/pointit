@@ -31,7 +31,7 @@ class Connection {
 	}
 
 	reply(id, type, ...args) {
-		return this._write({
+		return this.spark.write({
 			id,
 			type,
 			args,
