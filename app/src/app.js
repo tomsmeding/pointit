@@ -4,6 +4,7 @@ import GameView from './views/game.js'
 import Header from './components/header.js'
 import Game from './game.js'
 import Loading from './components/loading.js'
+import Player from './player.js'
 import FullscreenMessage from './components/fullscreenMessage.js'
 
 export default {
@@ -21,6 +22,12 @@ export default {
 			} else {
 				window.state.game = Game.parse(window.Connection, res);
 			}
+		});
+
+		window.Connection.once('hello', p => {
+			const player = Player.parse(p);
+			window.state.self = player;
+			window.state.nickname = player.nickname;
 		});
 	},
 

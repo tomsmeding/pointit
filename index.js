@@ -44,6 +44,9 @@ app.get('/:id', function (req, res) {
 
 primus.on('connection', function (spark) {
 	const player = new Player(new Connection(spark));
+
+	player.connection.send('hello', player);
+
 	player.connection.on('data', messageHandler(player));
 	player.connection.on('end', function () {
 		_.chain(games)

@@ -10,6 +10,7 @@ const primus = Primus.connect();
 // TODO
 window.state = {
 	nickname: '',
+	self: null,
 	game: null,
 };
 

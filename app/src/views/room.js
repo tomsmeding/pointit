@@ -4,7 +4,6 @@ import Countdown from '../components/countdown.js'
 
 export default {
 	timeLeft: null,
-	isReady: false,
 
 	oninit(vnode) {
 		window.Connection.once('game.countdown.start', () => {
@@ -21,6 +20,8 @@ export default {
 
 	view(vnode) {
 		const timeLeft = vnode.state.timeLeft;
+		const game = window.state.game;
+		const self = window.state.self;
 
 		return m('div', [
 			timeLeft != null ?
@@ -32,9 +33,9 @@ export default {
 			m('input[type=checkbox]', {
 				onchange: m.withAttr('checked', function (checked) {
 					window.Connection.send('ready.set', checked);
-					vnode.state.isReady = checked;
+					self.ready = checked;
 				}),
-				checked: vnode.state.isReady,
+				checked: self.ready,
 			}),
 		]);
 	},
