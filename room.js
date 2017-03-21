@@ -60,6 +60,7 @@ class Game {
 	}
 
 	broadcastAndWait(timeout, type, ...args) {
+		args.unshift(this.id);
 		return sendAndWaitAll(
 			this.players.map(p => p.connection),
 			type,
