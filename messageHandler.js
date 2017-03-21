@@ -10,11 +10,7 @@ module.exports = function (player) {
 		}
 
 		function res (e, r) {
-			conn.spark.write({
-				id: data.id,
-				type: 'res',
-				args: [ e, r ],
-			});
+			conn.reply(data.id, 'res', e, r);
 		}
 
 		switch (data.type) {
