@@ -19,6 +19,10 @@ export default {
 
 		return m(FullscreenMessage, {
 			type: 'countdown',
+			button: {
+				text: 'Cancel',
+				onclick: vnode.attrs.onclick,
+			},
 		}, text);
 	},
 }

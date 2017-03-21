@@ -20,10 +20,20 @@ export default {
 				m.redraw();
 			}, 250);
 
+			window.Connection.once('game.countdown.stop', () => {
+				clearInterval(intervalId);
+				vnode.state.timeLeft = null;
+			});
+
 			window.Connection.once('game.start', () => {
 				clearInterval(intervalId);
 			});
 		});
+	},
+
+	setReady(checked) {
+		window.Connection.send('ready.set', checked);
+		self.ready = checked;
 	},
 
 	view(vnode) {
@@ -33,16 +43,15 @@ export default {
 
 		return m('div', [
 			timeLeft != null ?
-				m(Countdown, { timeLeft }) :
-				undefined,
+				m(Countdown, {
+					timeLeft,
+					onclick: () => this.setReady(false),
+				}) : undefined,
 
 			m(NameInput),
 
 			m('input[type=checkbox]', {
-				onchange: m.withAttr('checked', function (checked) {
-					window.Connection.send('ready.set', checked);
-					self.ready = checked;
-				}),
+				onchange: m.withAttr('checked', this.setReady),
 				checked: self.ready,
 			}),
 

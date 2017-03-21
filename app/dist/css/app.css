@@ -32,9 +32,22 @@
 	bottom: 0;
 
 	text-align: center;
-	line-height: 100vh;
 
 	-webkit-font-smoothing: antialiased;
+}
+.fullscreenNotice > div:first-child {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+.fullscreenNotice > button {
+	position: absolute;
+	left: 50%;
+	bottom: 100px;
+	transform: translateX(-50%);
+	margin: 0;
+	background-color: white;
 }
 
 .fullscreenNotice.countdown {

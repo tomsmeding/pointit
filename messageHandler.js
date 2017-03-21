@@ -89,6 +89,17 @@ module.exports = function (player) {
 			res(null);
 
 			if (
+				game.countdownTimeoutId != null &&
+				!game.started &&
+				!player.ready
+			) {
+				clearTimeout(game.countdownTimeoutId);
+				game.broadcast('game.countdown.stop');
+				break;
+			}
+
+			if (
+				game.countdownTimeoutId == null &&
 				!game.started &&
 				game.players.length >= game.settings.minimalPlayers &&
 				game.players.every(p => p.ready)
@@ -98,7 +109,6 @@ module.exports = function (player) {
 				const startDate = new Date();
 				startDate.setSeconds(startDate.getSeconds() + countdownTime);
 
-				// TODO: some code to stop the countdown and stuff.
 				try {
 					await game.broadcastAndWait(
 						(countdownTime-1) * 1000,
@@ -106,7 +116,7 @@ module.exports = function (player) {
 						game.id,
 						startDate.getTime()
 					);
-					setTimeout(function () {
+					game.countdownTimeoutId = setTimeout(function () {
 						game.started = true;
 						game.broadcast('game.start');
 					}, countdownTime * 1000);
