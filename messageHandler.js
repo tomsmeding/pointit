@@ -1,8 +1,7 @@
 const { getGame } = require('./room.js');
 
-module.exports = function (player) {
+module.exports = function (player, game) {
 	const conn = player.connection;
-	let game = null;
 
 	return async function (data) {
 		if (conn.id < data.id) {

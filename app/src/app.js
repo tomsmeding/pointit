@@ -14,20 +14,24 @@ export default {
 	oninit(vnode) {
 		const roomId = document.location.pathname.slice(1);
 
-		window.Connection.send('room.join', roomId, (error, res) => {
-			vnode.state.loading = false;
-
-			if (error != null) {
-				vnode.state.error = error;
+		window.Connection.send('hello', 'new', (e, p) => {
+			if (e != null) {
+				console.error(e);
 			} else {
-				window.state.game = Game.parse(window.Connection, res);
-			}
-		});
+				const player = Player.parse(p);
+				window.state.self = player;
+				window.state.nickname = player.nickname;
 
-		window.Connection.once('hello', p => {
-			const player = Player.parse(p);
-			window.state.self = player;
-			window.state.nickname = player.nickname;
+				window.Connection.send('room.join', roomId, (error, res) => {
+					vnode.state.loading = false;
+
+					if (error != null) {
+						vnode.state.error = error;
+					} else {
+						window.state.game = Game.parse(window.Connection, res);
+					}
+				});
+			}
 		});
 	},
 

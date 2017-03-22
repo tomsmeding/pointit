@@ -36,24 +36,67 @@ app.param('id', function (req, res, next, id) {
 	next();
 });
 app.get('/creategame', function (req, res) {
-	res.redirect(`/${generateGame().id}`);
+	// TODO: show page where you can customize game settings.
+	const settings = { minimalPlayers: 1 };
+	res.redirect(`/${generateGame(settings).id}`);
 });
 app.get('/:id', function (req, res) {
 	res.sendFile(getFile('app/src/index.html'));
 });
 
 primus.on('connection', function (spark) {
-	const player = new Player(new Connection(spark));
+	let handler;
 
-	player.connection.send('hello', player);
+	spark.on('data', function (data) {
+		if (handler == null && data.type === 'hello') {
+			const connection = new Connection(spark);
+			connection.currentId = data.id;
 
-	player.connection.on('data', messageHandler(player));
-	player.connection.on('end', function () {
-		_.chain(games)
-			.values()
-			.filter(g => g.players.some(p => p.id === player.id))
-			.value()
-			.forEach(g => g.removePlayer(player));
+			const reply = (e, r) => connection.reply(data.id, 'res', e, r);
+
+			let player;
+			let game;
+
+			const method = data.args[0];
+			if (method === 'new') {
+				player = new Player(connection);
+			} else if (method === 'resume') {
+				[ game, player ] = _.chain(games)
+					.values()
+					.map(game => {
+						const player = _.find(game.players, {
+							privateKey: data.args[1],
+						});
+						return [ game, player ];
+					})
+					.find(([ ,player ]) => player != null)
+					.value();
+
+				if (player == null) {
+					reply('invalid-key', null);
+					return;
+				}
+
+				player.connection = connection;
+			} else {
+				reply('unknown-method', null);
+				return;
+			}
+
+			reply(null, (function () {
+				const res = player.toJSON();
+				res.privateKey = player.privateKey;
+				return res;
+			})());
+
+			handler = messageHandler(player, game);
+
+			player.connection.on('end', function () {
+				player.setDisconnected(true);
+			});
+		} else if (handler != null) {
+			handler(data);
+		}
 	});
 });
 
