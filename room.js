@@ -82,14 +82,17 @@ class Game {
 				await sleep(targetDate - Date.now());
 
 				const current = module.module.getCurrent();
-				// REVIEW: can't this be better implemented as a serverside
-				// method????
-				// REVIEW: how do we even get the result from this here?
-				await this.broadcastAndWait(
+				const responses = await this.broadcastAndWait(
 					Infinity, // TODO: do something when users are slow, serverside
 					'game.question.next',
 					current
 				);
+				for (const response of responses) {
+					module.module.provideAnswer({
+						player: response.player,
+						answerIndex: response.res.id,
+					});
+				}
 			} while(module.next());
 		}
 	}
@@ -112,14 +115,22 @@ class Game {
 		}
 	}
 
-	broadcastAndWait(timeout, type, ...args) {
+	async broadcastAndWait(timeout, type, ...args) {
 		args.unshift(this.id);
-		return sendAndWaitAll(
+		const responses = await sendAndWaitAll(
 			this.activePlayers().map(p => p.connection),
 			type,
 			args,
 			timeout
 		);
+
+		return responses.map(res => {
+			const player = this.activePlayers().find(p => {
+				return p.connection === res.connection;
+			});
+			res.player = player;
+			return res;
+		})
 	}
 
 	toJSON() {

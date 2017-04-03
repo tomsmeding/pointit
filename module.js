@@ -13,6 +13,7 @@ class Module {
 			player,
 			answerIndex,
 		});
+		console.log(this.answers); // TODO: REMOVE
 	}
 
 	getAnswer(player) {
