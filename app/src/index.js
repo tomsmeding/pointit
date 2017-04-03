@@ -1,6 +1,7 @@
 /* global Primus */
 
 import m from 'mithril'
+import cuid from 'cuid'
 import App from './app.js'
 import { ArrayMap } from './utils.js'
 
@@ -14,7 +15,6 @@ window.state = {
 };
 
 window.Connection = {
-	id: -1,
 	handlers: new ArrayMap(),
 	onceHandlers: new ArrayMap(),
 	idHandlers: new ArrayMap(),
@@ -28,7 +28,7 @@ window.Connection = {
 	},
 
 	send(type, ...args) {
-		const id = ++this.id;
+		const id = cuid();
 
 		const last = args[args.length - 1];
 		const callback = typeof last === 'function' && last;
@@ -54,10 +54,6 @@ window.Connection = {
 };
 primus.on('data', function (data) {
 	const conn = window.Connection;
-
-	if (conn.id < data.id) {
-		conn.id = data.id;
-	}
 
 	if (data.type === 'res') {
 		for (const fn of conn.idHandlers.get(data.id)) {

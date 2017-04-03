@@ -6,10 +6,6 @@ module.exports = function (player, game) {
 	const conn = player.connection;
 
 	return async function (data) {
-		if (conn.id < data.id) {
-			conn.id = data.id;
-		}
-
 		function res (e, r) {
 			conn.reply(data.id, 'res', e, r);
 		}

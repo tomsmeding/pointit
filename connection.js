@@ -1,6 +1,7 @@
+const { uid } = require('./util.js');
+
 class Connection {
 	constructor(spark) {
-		this.currentId = -1;
 		this.spark = spark;
 		this._resultHandlers = new Map();
 	}
@@ -24,7 +25,7 @@ class Connection {
 
 	send(type, ...args) {
 		return this._write({
-			id: ++this.currentId,
+			id: uid(25),
 			type,
 			args,
 		});
