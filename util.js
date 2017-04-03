@@ -27,13 +27,19 @@ async function sleep (ms) {
 }
 
 async function sendAndWaitAll (connections, type, args, timeout) {
-	const promises = connections.map(c => c.send(type, ...args));
-	await Promise.race([
-		sleep(timeout).then(() => {
-			throw new Error('timeout');
-		}),
-		Promise.all(promises),
-	]);
+	const promises = [
+		Promise.all(connections.map(c => c.send(type, ...args))),
+	];
+
+	if (timeout !== Infinity) {
+		promises.push(
+			sleep(timeout).then(() => {
+				throw new Error('timeout');
+			})
+		);
+	}
+
+	await Promise.race(promises);
 }
 
 module.exports = {

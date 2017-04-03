@@ -19,10 +19,11 @@ export default {
 
 		return m(FullscreenMessage, {
 			type: 'countdown',
-			button: {
+			button: vnode.attrs.onclick != null ? {
 				text: 'Cancel',
 				onclick: vnode.attrs.onclick,
-			},
+				class: 'button-danger',
+			} : undefined,
 		}, text);
 	},
 }

@@ -8,11 +8,9 @@ export default {
 	},
 
 	view() {
-		return m('.nameInput', [
-			m('input[type="text"]', {
-				value: window.state.nickname,
-				oninput: m.withAttr('value', this.changeName),
-			}),
-		]);
+		return m('input[type="text"]', {
+			value: window.state.nickname,
+			oninput: m.withAttr('value', this.changeName),
+		});
 	},
 };

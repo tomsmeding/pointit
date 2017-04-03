@@ -38,30 +38,31 @@ export default {
 	view(vnode) {
 		const game = window.state.game;
 
-		if (vnode.state.loading) {
-			return m('#app', m(Loading));
-		} else if (vnode.state.error != null) {
-			const message = m(FullscreenMessage, {
-				type: 'error',
-			}, ({
-				'game-started': 'Game has already been started!',
-			})[vnode.state.error]);
+		const children = (function () {
+			if (vnode.state.loading) {
+				return m('#app', m(Loading));
+			} else if (vnode.state.error != null) {
+				return m(FullscreenMessage, {
+					type: 'error',
+				}, ({
+					'game-started': 'Game has already been started!',
+				})[vnode.state.error]);
+			} else {
+				return [
+					m(Header, { game }),
 
-			return m('#app', message);
-		}
-
-		return m('#app', [
-			m(Header, { game }),
-
-			m('#content', [
-				game.started ?
-					m(GameView, {
-						game,
-					}) :
-					m(RoomView, {
-						room: game,
-					}),
-			]),
-		]);
+					m('#content', [
+						game.started ?
+							m(GameView, {
+								game,
+							}) :
+							m(RoomView, {
+								room: game,
+							}),
+					]),
+				]
+			}
+		})();
+		return m('#app', children);
 	},
 }

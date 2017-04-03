@@ -1,4 +1,6 @@
+const _ = require('lodash');
 const { getGame } = require('./room.js');
+const { sleep } = require('./util.js');
 
 module.exports = function (player, game) {
 	const conn = player.connection;
@@ -18,6 +20,15 @@ module.exports = function (player, game) {
 			conn._resultHandlers.delete(data.id);
 			break;
 
+		case 'timesync': {
+			const obj = data.args[0];
+			conn.send('timesync', {
+				id: _.get(obj, 'id', null),
+				result: _.now(),
+			});
+			break;
+		}
+
 		case 'room.get':
 			res(null, game);
 			break;
@@ -28,6 +39,7 @@ module.exports = function (player, game) {
 				return;
 			} else if (game.started && !game.settings.allowLateJoin) {
 				res('game-started', null);
+				game = null;
 				return;
 			}
 
@@ -89,6 +101,7 @@ module.exports = function (player, game) {
 				!player.ready
 			) {
 				clearTimeout(game.countdownTimeoutId);
+				game.countdownTimeoutId = undefined;
 				game.broadcast('game.countdown.stop');
 				break;
 			}
@@ -96,8 +109,8 @@ module.exports = function (player, game) {
 			if (
 				game.countdownTimeoutId == null &&
 				!game.started &&
-				game.players.length >= game.settings.minimalPlayers &&
-				game.players.every(p => p.ready)
+				game.activePlayers().length >= game.settings.minimalPlayers &&
+				game.activePlayers().every(p => p.ready)
 			) {
 				const countdownTime = game.settings.countdownTime;
 
@@ -111,8 +124,7 @@ module.exports = function (player, game) {
 						startDate.getTime()
 					);
 					game.countdownTimeoutId = setTimeout(function () {
-						game.started = true;
-						game.broadcast('game.start');
+						game.start();
 					}, countdownTime * 1000);
 				} catch (e) {
 					// TODO: one or more clients didn't reply, handle this,

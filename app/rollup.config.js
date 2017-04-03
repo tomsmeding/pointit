@@ -17,4 +17,6 @@ export default {
 	],
 
 	format: 'iife',
+
+	sourceMap: true,
 };

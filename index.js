@@ -26,6 +26,11 @@ app.get('/', function (req, res) {
 	res.sendFile(getFile('index.html'));
 });
 
+// TODO: DEBUG ROUTE, REMOVE!!!
+app.get('/games', function (req, res) {
+	res.json(_.values(games));
+});
+
 app.param('id', function (req, res, next, id) {
 	const game = getGame(id);
 	if (game === undefined) {

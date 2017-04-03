@@ -15,8 +15,7 @@ depend:
 	npm install
 
 $(BUNDLE): $(JSFILES)
-	rollup -c >dist/bundle.js_
-	mv dist/bundle.js_ $(BUNDLE)
+	rollup -c -o $(BUNDLE)
 
 $(BUNDLE_MIN): $(BUNDLE)
 	uglifyjs $(BUNDLE) >$(BUNDLE_MIN)

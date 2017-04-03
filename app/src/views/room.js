@@ -1,6 +1,7 @@
 import m from 'mithril'
 import NameInput from '../components/nameInput.js'
 import Countdown from '../components/countdown.js'
+import List from '../components/list.js'
 
 // TODO
 const PlayerRow = {
@@ -14,20 +15,22 @@ export default {
 	timeLeft: null,
 
 	oninit(vnode) {
-		window.Connection.once('game.countdown.start', () => {
-			const intervalId = setInterval(() => {
+		let intervalId;
+
+		window.Connection.on('game.countdown.start', () => {
+			intervalId = setInterval(() => {
 				vnode.state.timeLeft = window.state.game.timeLeft();
 				m.redraw();
 			}, 250);
+		});
 
-			window.Connection.once('game.countdown.stop', () => {
-				clearInterval(intervalId);
-				vnode.state.timeLeft = null;
-			});
+		window.Connection.on('game.countdown.stop', () => {
+			clearInterval(intervalId);
+			vnode.state.timeLeft = null;
+		});
 
-			window.Connection.once('game.start', () => {
-				clearInterval(intervalId);
-			});
+		window.Connection.on('game.start', () => {
+			clearInterval(intervalId);
 		});
 	},
 
@@ -41,21 +44,28 @@ export default {
 		const game = window.state.game;
 		const self = window.state.self;
 
-		return m('div', [
+		return m('#room', [
 			timeLeft != null ?
 				m(Countdown, {
 					timeLeft,
 					onclick: () => this.setReady(false),
 				}) : undefined,
 
-			m(NameInput),
+			m('#selfInfo', [
+				m(NameInput),
+				m('input[type=checkbox]', {
+					onchange: m.withAttr('checked', this.setReady),
+					checked: self.ready,
+				}),
+			]),
 
-			m('input[type=checkbox]', {
-				onchange: m.withAttr('checked', this.setReady),
-				checked: self.ready,
-			}),
-
-			m('.playerList', game.players.map(player => {
+			m(List, {
+				class: 'playerList',
+				header: 'Players',
+				noItemsMessage: 'You\'re the only one in the room! :(',
+			}, game.players.filter(p => {
+				return !p.disconnected && !p.equals(window.state.self);
+			}).map(player => {
 				return m(PlayerRow, { player });
 			})),
 		]);

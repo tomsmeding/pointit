@@ -9,7 +9,7 @@ export default class Game {
 		this.startDate = null;
 		this.started = false;
 
-		connection.once('game.countdown.start', (gameId, time) => {
+		connection.on('game.countdown.start', (gameId, time) => {
 			this.startDate = new Date(time);
 		});
 		connection.once('game.start', () => {

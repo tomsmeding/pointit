@@ -3,6 +3,7 @@ export default class Player {
 		this.id = id;
 		this.nickname = '';
 		this.ready = false;
+		this.disconnected = false;
 
 		this.privateKey = undefined;
 
@@ -15,13 +16,21 @@ export default class Player {
 		};
 		createEventBinding('player.ready', 'ready');
 		createEventBinding('player.nick', 'nickname');
+		createEventBinding('player.disconnected', 'disconnected');
+	}
+
+	equals(player) {
+		return this.id === player.id;
 	}
 
 	static parse(raw) {
 		const player = new Player(raw.id);
 		player.nickname = raw.nickname;
 		player.ready = raw.ready;
+		player.disconnected = raw.disconnected;
+
 		player.privateKey = raw.privateKey;
+
 		return player;
 	}
 }

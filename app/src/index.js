@@ -66,20 +66,35 @@ primus.on('data', function (data) {
 		conn.idHandlers.remove(data.id);
 	} else {
 		let error;
-		try {
-			for (const fn of conn.handlers.get(data.type)) {
-				fn(...data.args);
-			}
+		let promise;
 
-			for (const fn of conn.onceHandlers.get(data.type)) {
-				fn(...data.args);
+		try {
+			const handlers = conn.handlers.get(data.type)
+				.concat(conn.onceHandlers.get(data.type));
+
+			for (const fn of handlers) {
+				const res = fn(...data.args);
+				if (res !== undefined) {
+					if (promise === undefined) {
+						promise = res;
+					} else {
+						console.warn('promise already retrievied', promise, 'but got a new one', res);
+					}
+				}
 			}
 		} catch (e) {
 			console.error(e);
 			error = e.toString();
 		}
 
-		conn.reply(data.id, error, null);
+		Promise.resolve(promise).then(
+			res => [ null, res ],
+			err => [ err, null ]
+		).then(([ err, res ]) => {
+			err = err || error;
+			conn.reply(data.id, err, res);
+		});
+
 		conn.onceHandlers.remove(data.type);
 	}
 
