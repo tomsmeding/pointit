@@ -6,9 +6,11 @@ export default {
 	interludeTimer: new Timer(),
 	currentQuestion: null,
 	questionCb: undefined,
+	waiting: false,
 
 	oninit(vnode) {
 		window.Connection.on('game.interlude', (gameId, date) => {
+			vnode.state.waiting = false; // REVIEW: earlier?
 			this.interludeTimer.start(new Date(date));
 		});
 
@@ -18,17 +20,24 @@ export default {
 			this.interludeTimer.stop();
 
 			return new Promise(resolve => {
-				vnode.state.questionCb = resolve;
+				vnode.state.questionCb = function (...args) {
+					vnode.state.waiting = true;
+					resolve(...args);
+				};
 			});
 		});
 	},
 
 	view(vnode) {
 		const timer = vnode.state.interludeTimer;
+		const waiting = vnode.state.waiting;
 		const currentQuestion = vnode.state.currentQuestion;
 
 		return m('.game', [
 			timer != null ? timer.countdown() : undefined,
+
+			// better fullscreen waiting screen.
+			waiting ? 'Waiting....' : undefined,
 
 			currentQuestion != null ?
 				m(Question, {
