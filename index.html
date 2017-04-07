@@ -8,6 +8,10 @@
 		<link rel="stylesheet" href="/css/skeleton.css" type="text/css" media="all" />
 		<link rel="stylesheet" href="/css/main.css" type="text/css" media="all" />
 		<style>
+			form {
+				margin: 0;
+			}
+
 			.center {
 				position: fixed;
 				top: 50%;
@@ -33,23 +37,25 @@
 	</head>
 	<body>
 		<div class="center">
-			<input type="text" placeholder="Game ID"/>
-			<br>
-			<button class="button-primary">Enter</button>
+			<form>
+				<input type="text" placeholder="Game ID"/>
+				<br>
+				<input type="submit" class="button-primary" value="Enter"/>
+			</form>
 		</div>
 		<div class="footer">
 			<a class="button" href="/creategame">Create a new game</a>
 		</div>
 
 		<script>
-			const input = document.getElementsByTagName('input')[0];
-			const button = document.getElementsByTagName('button')[0];
+			const input = document.querySelector('input[type="text"]');
+			const form = document.getElementsByTagName('form')[0];
 
 			if (document.location.hash === '#error') {
 				input.classList.add('error');
 			}
 
-			button.addEventListener('click', function (event) {
+			form.addEventListener('submit', function (event) {
 				event.preventDefault();
 				document.location.href = '/' + input.value;
 			});
