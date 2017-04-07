@@ -38,6 +38,12 @@ class Module {
 			return answer.answerId;
 		}
 	}
+
+	next() {
+		// should be overwritten when a module wants to provide multiple
+		// questions.
+		return false;
+	}
 }
 
 const modules = new Map();

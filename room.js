@@ -18,7 +18,7 @@ class Game {
 			const module = getModule(name);
 			return {
 				name,
-				module: new module(this),
+				module,
 				friendly: module.friendly,
 			}
 		});
@@ -64,6 +64,7 @@ class Game {
 
 		for (let i = 0; i < this.modules.length; i++) {
 			const module = this.modules[i];
+			const instance = new module.module(this);
 
 			// REVIEW
 			this.broadcast(
@@ -81,19 +82,19 @@ class Game {
 				this.broadcast('game.interlude', targetDate.valueOf()); // TODO: reword
 				await sleep(targetDate - Date.now());
 
-				const current = module.module.getCurrent();
+				const current = instance.getCurrent();
 				const responses = await this.broadcastAndWait(
 					Infinity, // TODO: do something when users are slow, serverside
 					'game.question.next',
 					current
 				);
 				for (const response of responses) {
-					module.module.provideAnswer({
+					instance.provideAnswer({
 						player: response.player,
 						answerId: response.res,
 					});
 				}
-			} while(module.next());
+			} while(instance.next());
 		}
 	}
 
