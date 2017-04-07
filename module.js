@@ -8,16 +8,19 @@ class Module {
 		this.answers = [];
 	}
 
-	provideAnswer({ player, answerIndex }) {
+	provideAnswer({ player, answerId }) {
 		this.answers.push({
 			player,
-			answerIndex,
+			answerId,
 		});
 		console.log(this.answers); // TODO: REMOVE
 	}
 
 	getAnswer(player) {
-		this.answers.find(a => a.player.id === player.id);
+		const answer = this.answers.find(a => a.player.id === player.id);
+		if (answer != null) {
+			return answer.answerId;
+		}
 	}
 }
 

@@ -17,10 +17,10 @@ module.exports = class WhoIsGonnaWin extends Module {
 		};
 	}
 
-	checkAnswer({ player, game }) {
-		const answerIndex = this.getAnswer(player);
-		const correct = _.max(game.players, 'points');
-		return this.players[answerIndex].id === correct.id;
+	checkAnswer({ player }) {
+		const answerId = this.getAnswer(player);
+		const correct = _.max(this.game.players, 'points').id;
+		return answerId === correct;
 	}
 }
 

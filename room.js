@@ -90,7 +90,7 @@ class Game {
 				for (const response of responses) {
 					module.module.provideAnswer({
 						player: response.player,
-						answerIndex: response.res.id,
+						answerId: response.res,
 					});
 				}
 			} while(module.next());

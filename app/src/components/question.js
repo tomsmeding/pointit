@@ -7,7 +7,7 @@ export default {
 			m('.question', vnode.attrs.question),
 			vnode.attrs.answers.map(a => {
 				return m('button', {
-					onclick: _.partial(vnode.attrs.callback, a),
+					onclick: _.partial(vnode.attrs.callback, a.id),
 				}, a.text);
 			}),
 		]);
