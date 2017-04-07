@@ -10,10 +10,7 @@ module.exports = class WhoIsGonnaWin extends Module {
 	getCurrent() {
 		return {
 			question: 'Who is going to win this game?',
-			answers: this.game.players.map(p => ({
-				id: p.id,
-				text: p.nickname,
-			})),
+			answers: this._players(),
 		};
 	}
 

@@ -8,6 +8,22 @@ class Module {
 		this.answers = [];
 	}
 
+	// REVIEW: do we want another way all around???
+	// REVIEW: put this somewhere else?
+	// util func
+	_players(player) {
+		let players = this.game.activePlayers();
+
+		if (player != null) {
+			players = players.filter(p => p.id !== player.id);
+		}
+
+		return players.map(p => ({
+			id: p.id,
+			text: p.nickname,
+		}));
+	}
+
 	provideAnswer({ player, answerId }) {
 		this.answers.push({
 			player,
