@@ -82,11 +82,10 @@ class Game {
 				this.broadcast('game.interlude', targetDate.valueOf()); // TODO: reword
 				await sleep(targetDate - Date.now());
 
-				const current = instance.getCurrent();
 				const responses = await this.broadcastAndWait(
 					Infinity, // TODO: do something when users are slow, serverside
 					'game.question.next',
-					current
+					player => [ instance.getCurrent(player) ]
 				);
 				for (const response of responses) {
 					instance.provideAnswer({
@@ -117,21 +116,27 @@ class Game {
 	}
 
 	async broadcastAndWait(timeout, type, ...args) {
-		args.unshift(this.id);
+		const argsfn = _.isFunction(args[0]) ? args[0] : () => args;
+		const wrapped = player => {
+			const res = argsfn(player);
+			res.unshift(this.id);
+			return res;
+		};
+
 		const responses = await sendAndWaitAll(
-			this.activePlayers().map(p => p.connection),
-			type,
-			args,
+			this.activePlayers(),
+			player => {
+				const args = wrapped(player);
+				return player.connection.send(type, ...args);
+			},
 			timeout
 		);
 
-		return responses.map(res => {
-			const player = this.activePlayers().find(p => {
-				return p.connection === res.connection;
-			});
-			res.player = player;
-			return res;
-		})
+		return responses.map(res => ({
+			player: res.item,
+			res: res.res,
+			err: res.err,
+		}));
 	}
 
 	toJSON() {

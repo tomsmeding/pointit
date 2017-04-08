@@ -26,23 +26,22 @@ async function sleep (ms) {
 	});
 }
 
-async function sendAndWaitAll (connections, type, args, timeout) {
-	const result = connections.map(c => ({
-		connection: c,
-		answered: false,
-		err: null,
+async function sendAndWaitAll (items, fn, timeout) {
+	const result = items.map(x => ({
+		item: x,
+		resolved: false,
 		res: null,
+		err: null,
 	}));
 
 	const promises = [
-		Promise.all(connections.map(c => {
-			const item = result.find(r => r.connection === c);
-			return c.send(type, ...args).then(res => {
-				item.answered = true;
-				item.res = res;
+		Promise.all(result.map(obj => {
+			return fn(obj.item).then(res => {
+				obj.answered = true;
+				obj.res = res;
 			}, err => {
-				item.answered = true;
-				item.err = err;
+				obj.answered = true;
+				obj.err = err;
 			});
 		})),
 	];
