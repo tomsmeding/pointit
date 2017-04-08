@@ -45,7 +45,8 @@ export default {
 				return m(FullscreenMessage, {
 					type: 'error',
 				}, ({
-					'game-started': 'Game has already been started!',
+					'game-started': 'Game has already been started',
+					'room-not-found': 'No game with the given ID found',
 				})[vnode.state.error]);
 			} else {
 				return [
