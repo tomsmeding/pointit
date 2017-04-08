@@ -3,10 +3,7 @@ const _ = require('lodash');
 
 const questions = [
 	'Who would rather lie about getting laid?',
-].map((question, i) => ({
-	index: i,
-	question,
-}));
+];
 
 module.exports = class WouldRather extends Module {
 	constructor(options) {
