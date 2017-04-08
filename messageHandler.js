@@ -120,7 +120,10 @@ module.exports = function (player, game) {
 						startDate.getTime()
 					);
 					game.countdownTimeoutId = setTimeout(function () {
-						game.start();
+						game.start().catch(err => {
+							// REVIEW: what the fuck do we do now?
+							console.error('=====GLOBAL GAME ERROR=====\n', err);
+						});
 					}, countdownTime * 1000);
 				} catch (e) {
 					// TODO: one or more clients didn't reply, handle this,
