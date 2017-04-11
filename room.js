@@ -1,15 +1,18 @@
 const _ = require('lodash');
+const EventEmitter = require('events');
 const { getModule, getModules } = require('./module.js');
 const { uid, sendAndWaitAll, sleep } = require('./util.js');
 
 var games = {};
 
-class Game {
+class Game extends EventEmitter {
 	/**
 	 * @param {String} id
 	 * @param {Object} [settings]
 	 */
 	constructor(id, settings) {
+		super();
+
 		this.id = id;
 		this.players = [];
 		this.settings = _.defaults(settings, Game.DEFAULT_SETTINGS);
@@ -19,7 +22,6 @@ class Game {
 			return {
 				name,
 				module,
-				friendly: module.friendly,
 			}
 		});
 	}
@@ -64,7 +66,18 @@ class Game {
 
 		for (let i = 0; i < this.modules.length; i++) {
 			const module = this.modules[i];
-			const instance = new module.module(this);
+
+			let callbackGiven = false;
+			const getCallback = () => {
+				console.log('getCallback called');
+				callbackGiven = true;
+				return () => {
+					console.log('callback called');
+					console.error('TODOOOOO');
+				};
+			};
+
+			const instance = new module.module(this, getCallback);
 
 			// REVIEW
 			this.broadcast(
@@ -93,7 +106,31 @@ class Game {
 						answerId: response.res,
 					});
 				}
+
+				if (!callbackGiven) {
+					const promises = this.activePlayers().map(p => {
+						const res = instance.checkAnswer({
+							player: p,
+						});
+						return Promise.resolve(res).then(res => [ p, res ]);
+					});
+					const pairs = await Promise.all(promises);
+					for (const [ player, answerCorrect ] of pairs) {
+						// TODO: actually wait on clients here
+						player.connection.send('answer.correct', this.id, answerCorrect);
+					}
+				}
+
+				this.emit('question.done', {
+					index: instance.current,
+				}, {
+					module: instance,
+					index: i,
+					length: this.modules.length,
+				});
 			} while(instance.next());
+
+			this.emit('finish');
 		}
 	}
 

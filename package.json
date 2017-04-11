@@ -18,7 +18,9 @@
   "dependencies": {
     "express": "^4.14.0",
     "lodash": "^4.17.4",
+    "mirage": "0.0.6",
     "primus": "^6.0.7",
+    "primus-emit": "^1.0.0",
     "ws": "^1.1.1"
   }
 }

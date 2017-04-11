@@ -14,6 +14,11 @@ export default {
 			this.interludeTimer.start(new Date(date));
 		});
 
+		window.Connection.on('answer.correct', (gameId, answerCorrect) => {
+			vnode.state.waiting = false;
+			// TODO: show animation answer correct 'n stuff
+		});
+
 		window.Connection.on('game.question.next', (gameId, question) => {
 			vnode.state.currentQuestion = question;
 

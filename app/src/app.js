@@ -1,36 +1,51 @@
-import m from 'mithril'
-import RoomView from './views/room.js'
-import GameView from './views/game.js'
-import Header from './components/header.js'
-import Game from './game.js'
-import Loading from './components/loading.js'
-import Player from './player.js'
-import FullscreenMessage from './components/fullscreenMessage.js'
+import _ from 'lodash';
+import m from 'mithril';
+import RoomView from './views/room.js';
+import GameView from './views/game.js';
+import Header from './components/header.js';
+import Game from './game.js';
+import Loading from './components/loading.js';
+import Player from './player.js';
+import FullscreenMessage from './components/fullscreenMessage.js';
 
 export default {
 	loading: true,
 	error: null,
 
 	oninit(vnode) {
-		const roomId = document.location.pathname.slice(1);
+		const roomId = _.last(document.location.pathname.split('/'));
 
-		window.Connection.send('hello', 'new', (e, p) => {
-			if (e != null) {
-				console.error(e);
-			} else {
-				const player = Player.parse(p);
-				window.state.self = player;
-				window.state.nickname = player.nickname;
+		const handshake = cb => {
+			window.Connection.send('hello', (e, p) => {
+				if (e != null) {
+					cb(e);
+				} else {
+					const player = Player.parse(p);
+					window.state.self = player;
+					window.state.nickname = player.nickname;
+					cb(null);
+				}
+			});
+		}
 
-				window.Connection.send('room.join', roomId, (error, res) => {
-					vnode.state.loading = false;
+		const join = cb => {
+			window.Connection.send('room.join', roomId, (error, res) => {
+				vnode.state.loading = false;
 
-					if (error != null) {
-						vnode.state.error = error;
-					} else {
-						window.state.game = Game.parse(window.Connection, res);
-					}
-				});
+				if (error != null) {
+					vnode.state.error = error;
+					cb(error);
+				} else {
+					window.state.game = Game.parse(window.Connection, res);
+					cb(null);
+				}
+			});
+		}
+
+		window.Connection.primus.on('reconnected', handshake);
+		handshake(e => {
+			if (e == null) {
+				join(_.noop);
 			}
 		});
 	},
@@ -50,6 +65,8 @@ export default {
 				})[vnode.state.error]);
 			} else {
 				return [
+					!window.Connection.online && m('div', 'disconnected!'),
+
 					m(Header, { game }),
 
 					m('#content', [
@@ -64,6 +81,7 @@ export default {
 				]
 			}
 		})();
+
 		return m('#app', children);
 	},
 }

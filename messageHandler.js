@@ -39,7 +39,12 @@ module.exports = function (player, game) {
 				return;
 			}
 
-			game.addPlayer(player);
+			try {
+				game.addPlayer(player);
+			} catch(e) {
+				res('already-in-room', null);
+				return;
+			}
 
 			res(null, game);
 			break;

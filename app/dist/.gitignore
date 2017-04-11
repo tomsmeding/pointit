@@ -1,2 +1,5 @@
-bundle.js
+client.js
+client.js.map
+spec.js
+spec.js.map
 _primus.js

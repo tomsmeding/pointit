@@ -2,10 +2,9 @@ const { Module } = require('../module.js');
 const _ = require('lodash');
 
 module.exports = class WhoIsGonnaWin extends Module {
-	constructor(game) {
+	constructor(game, getCallback) {
 		super(game);
-		// do we want to use a generic callback for this instead?
-		this.stepAnswerReady = 'game-end';
+		game.on('finish', getCallback());
 	}
 
 	getCurrent() {

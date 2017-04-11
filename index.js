@@ -14,6 +14,8 @@ const app = express();
 const server = http.createServer(app);
 
 const primus = new Primus(server, { transformer: 'websockets' });
+primus.plugin('mirage', require('mirage'));
+primus.plugin('emit', require('primus-emit'));
 
 function getFile (name) {
 	return path.join(__dirname, name);
@@ -46,53 +48,44 @@ app.get('/creategame', function (req, res) {
 	res.redirect(`/${generateGame(settings).id}`);
 });
 app.get('/:id', function (req, res) {
-	res.sendFile(getFile('app/src/index.html'));
+	res.sendFile(getFile('app/src/client.html'));
+});
+app.get('/spec/:id', function (req, res) {
+	res.sendFile(getFile('app/src/spec.html'));
 });
 
 primus.on('connection', function (spark) {
 	let handler;
 
+	console.log('connection! mirage id', spark.mirage);
+
 	spark.on('data', function (data) {
 		if (handler == null && data.type === 'hello') {
 			const connection = new Connection(spark);
-			connection.currentId = data.id;
+			let method, game, player;
 
-			const reply = (e, r) => connection.reply(data.id, 'res', e, r);
+			const pair = _.chain(games)
+				.values()
+				.map(game => {
+					const player = _.find(game.players, p => {
+						return p.connection.id === connection.id;
+					});
+					return [ game, player ];
+				})
+				.find(([ ,player ]) => player != null)
+				.value();
 
-			let player;
-			let game;
-
-			const method = data.args[0];
-			if (method === 'new') {
+			if (pair == null) {
 				player = new Player(connection);
-			} else if (method === 'resume') {
-				[ game, player ] = _.chain(games)
-					.values()
-					.map(game => {
-						const player = _.find(game.players, {
-							privateKey: data.args[1],
-						});
-						return [ game, player ];
-					})
-					.find(([ ,player ]) => player != null)
-					.value();
-
-				if (player == null) {
-					reply('invalid-key', null);
-					return;
-				}
-
-				player.connection = connection;
+				console.log('creating new player');
 			} else {
-				reply('unknown-method', null);
-				return;
+				[ game, player ] = pair;
+				console.log('resuming old player');
+				player.connection = connection;
+				player.setDisconnected(false);
 			}
 
-			reply(null, (function () {
-				const res = player.toJSON();
-				res.privateKey = player.privateKey;
-				return res;
-			})());
+			connection.reply(data.id, 'res', null, player);
 
 			handler = messageHandler(player, game);
 

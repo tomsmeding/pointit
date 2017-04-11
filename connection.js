@@ -6,6 +6,10 @@ class Connection {
 		this._resultHandlers = new Map();
 	}
 
+	get id() {
+		return this.spark.mirage;
+	}
+
 	on(type, fn) {
 		return this.spark.on(type, fn);
 	}

@@ -8,7 +8,6 @@ class Player {
 		this.connection = connection;
 		this.nickname = `Player_${uid(4)}`;
 		this.disconnected = false;
-		this.privateKey = uid(50);
 	}
 
 	send(...args) {

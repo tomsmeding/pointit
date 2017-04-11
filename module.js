@@ -6,6 +6,7 @@ class Module {
 	constructor(game) {
 		this.game = game;
 		this.answers = [];
+		this.current = 0;
 	}
 
 	// REVIEW: do we want another way all around???
@@ -29,7 +30,6 @@ class Module {
 			player,
 			answerId,
 		});
-		console.log(this.answers); // TODO: REMOVE
 	}
 
 	getAnswer(player) {
