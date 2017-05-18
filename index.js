@@ -62,7 +62,7 @@ primus.on('connection', function (spark) {
 	spark.on('data', function (data) {
 		if (handler == null && data.type === 'hello') {
 			const connection = new Connection(spark);
-			let method, game, player;
+			let game, player;
 
 			const pair = _.chain(games)
 				.values()

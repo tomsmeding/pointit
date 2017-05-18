@@ -1,11 +1,10 @@
 export default class Player {
-	constructor(id) {
+	constructor(id, nickname) {
 		this.id = id;
-		this.nickname = '';
+		this.nickname = nickname;
+
 		this.ready = false;
 		this.disconnected = false;
-
-		this.privateKey = undefined;
 
 		const createEventBinding = (event, field) => {
 			window.Connection.on(event, (gameId, playerId, val) => {
@@ -24,12 +23,9 @@ export default class Player {
 	}
 
 	static parse(raw) {
-		const player = new Player(raw.id);
-		player.nickname = raw.nickname;
+		const player = new Player(raw.id, raw.nickname);
 		player.ready = raw.ready;
 		player.disconnected = raw.disconnected;
-
-		player.privateKey = raw.privateKey;
 
 		return player;
 	}
