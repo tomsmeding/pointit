@@ -14,7 +14,6 @@ module.exports = class WouldRather extends Module {
 
 	next() {
 		this.current++;
-		this.ready = false;
 		this.callbacks = []; // REVIEW
 		this.answers = [];
 		return this.current < questions.length;
@@ -23,18 +22,19 @@ module.exports = class WouldRather extends Module {
 	getCurrent(player) {
 		return {
 			question: questions[this.current],
+			type: 'players',
 			answers: this._players(player),
 		};
 	}
 
 	_ready() {
-		return this.answers.length !== this.game.activePlayers().length;
+		return this.answers.length === this.game.activePlayers().length;
 	}
 
 	_checkAnswer(player) {
 		const pair = _.chain(this.answers)
 			.groupBy('answerId')
-			.pairs()
+			.toPairs()
 			.max(pair => pair[1].length)
 			.value();
 		const answerId = this.getAnswer(player);
