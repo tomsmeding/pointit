@@ -8,6 +8,7 @@ export default class Game {
 
 		this.startDate = null;
 		this.started = false;
+		this.finished = false;
 
 		connection.on('game.countdown.start', (gameId, time) => {
 			this.startDate = new Date(time);
@@ -26,6 +27,14 @@ export default class Game {
 			const player = this.players.find(p => p.id === playerId);
 			if (player != null) {
 				this.removePlayer(player);
+			}
+		});
+
+		connection.once('game.finish', (gameId, players) => {
+			this.finished = true;
+			for (const info of players) {
+				const player = this.players.find(p => p.id === info.id);
+				player.points = info.points;
 			}
 		});
 	}

@@ -131,6 +131,14 @@ class Game extends EventEmitter {
 			} while(instance.next());
 
 			this.emit('finish');
+
+		this.emit('finish');
+
+		this.broadcast('game.finish', this.players.map(p => ({
+			id: p.id,
+			points: p.points,
+		})));
+
 		}
 	}
 
