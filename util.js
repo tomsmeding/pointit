@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const _ = require('lodash');
 
 const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
 function uid (length = 5) {
@@ -62,9 +63,15 @@ async function sendAndWaitAll (items, fn, timeout) {
 	}
 }
 
+function multiMax (arr, field) {
+	const maxValue = _.max(arr, field)[field];
+	return _.filter(arr, x => x[field] === maxValue);
+}
+
 module.exports = {
 	uid,
 	uniqid,
 	sleep,
 	sendAndWaitAll,
+	multiMax,
 };

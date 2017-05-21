@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const EventEmitter = require('events');
 const { getModule, getModules } = require('./module.js');
-const { uid, sendAndWaitAll, sleep } = require('./util.js');
+const { uid, sendAndWaitAll, sleep, multiMax } = require('./util.js');
 
 var games = {};
 
@@ -145,6 +145,11 @@ class Game extends EventEmitter {
 			points: p.points,
 		})));
 
+		const winners = multiMax(this.players, 'points')
+		console.log(`======= ${this.id} =======`);
+		console.log('Game finished!');
+		console.log('Winner(s):', _(winners).map(p => `${p.nickname} (${p.points} point(s))`).join(', '));
+		console.log('=====================');
 	}
 
 	emit(type, ...args) {
