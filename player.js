@@ -6,10 +6,13 @@ class Player {
 	constructor(connection) {
 		this.id = uid(10);
 		this.connection = connection;
-		this.nickname = `Player_${uid(4)}`;
-		this.disconnected = false;
-	}
 
+		this.nickname = `Player_${uid(4)}`;
+		this.ready = false;
+		this.disconnected = false;
+
+		this.points = 0;
+	}
 
 	setDisconnected(val) {
 		this.disconnected = val;
@@ -24,6 +27,7 @@ class Player {
 		const fields = [
 			'id',
 			'nickname',
+			'ready',
 			'disconnected',
 		];
 		return _.pick(this, fields);
