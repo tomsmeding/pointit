@@ -64,20 +64,26 @@ class Game extends EventEmitter {
 
 		await sleep(250); // HACK
 
+		const answersReady = [];
+
 		for (let i = 0; i < this.modules.length; i++) {
 			const module = this.modules[i];
+			let instance;
 
 			let callbackGiven = false;
 			const getCallback = () => {
 				console.log('getCallback called');
 				callbackGiven = true;
 				return () => {
-					console.log('callback called');
-					console.error('TODOOOOO');
+					answersReady.push({
+						module,
+						instance,
+					});
+					console.log('callback called.', 'answersReady: ', answersReady);
 				};
 			};
 
-			const instance = new module.module(this, getCallback);
+			instance = new module.module(this, getCallback);
 
 			// REVIEW
 			this.broadcast(
@@ -90,7 +96,7 @@ class Game extends EventEmitter {
 
 			do {
 				const targetDate = new Date();
-				targetDate.setSeconds(targetDate.getSeconds() + 3);
+				targetDate.setSeconds(targetDate.getSeconds() + 2);
 
 				this.broadcast('game.interlude', targetDate.valueOf()); // TODO: reword
 				await sleep(targetDate - Date.now());
@@ -108,17 +114,7 @@ class Game extends EventEmitter {
 				}
 
 				if (!callbackGiven) {
-					const promises = this.activePlayers().map(p => {
-						const res = instance.checkAnswer({
-							player: p,
-						});
-						return Promise.resolve(res).then(res => [ p, res ]);
-					});
-					const pairs = await Promise.all(promises);
-					for (const [ player, answerCorrect ] of pairs) {
-						// TODO: actually wait on clients here
-						player.connection.send('answer.correct', this.id, answerCorrect);
-					}
+					await this._checkAnswers(module, instance);
 				}
 
 				this.emit('question.done', {
@@ -130,15 +126,58 @@ class Game extends EventEmitter {
 				});
 			} while(instance.next());
 
-			this.emit('finish');
+			this.emit('module.done', {
+				module: instance,
+				index: i,
+				length: this.modules.length,
+			});
+		}
 
 		this.emit('finish');
+
+		for (const { module, instance } of answersReady) {
+			await this._checkAnswers(module, instance);
+		}
+		_.remove(answersReady);
 
 		this.broadcast('game.finish', this.players.map(p => ({
 			id: p.id,
 			points: p.points,
 		})));
 
+	}
+
+	emit(type, ...args) {
+		{
+			let arr = [ `emitted '${type}'` ];
+			if (args.length > 0) {
+				arr.push('with args');
+				arr = arr.concat(args);
+			}
+			console.log(...arr);
+		}
+		super.emit(type, ...args);
+	}
+
+	async _checkAnswers(module, instance) {
+		// TODO: DRY this up (REVIEW: think this is done?)
+		// TODO: checkAnswer (and with that the whole current answer
+		// system) currently doesn't really work with multiple questions
+		// per module. Fix that.
+
+		const promises = this.activePlayers().map(p => {
+			// REVIEW: replace res, with an variable Number (points being
+			// given)>
+			const res = instance.checkAnswer({
+				player: p,
+			});
+			return Promise.resolve(res).then(res => [ p, res ]);
+		});
+		const pairs = await Promise.all(promises);
+		for (const [ player, answerCorrect ] of pairs) {
+			// TODO: actually wait on clients here
+			player.points += answerCorrect;
+			player.connection.send('answer.correct', this.id, answerCorrect);
 		}
 	}
 
