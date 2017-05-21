@@ -156,7 +156,7 @@ class Game extends EventEmitter {
 	 */
 	broadcast(type, ...args) {
 		for (const player of this.activePlayers()) {
-			player.send(type, this.id, ...args);
+			player.connection.send(type, this.id, ...args);
 		}
 	}
 

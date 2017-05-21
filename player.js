@@ -10,9 +10,6 @@ class Player {
 		this.disconnected = false;
 	}
 
-	send(...args) {
-		return this.connection.send(...args);
-	}
 
 	setDisconnected(val) {
 		this.disconnected = val;
