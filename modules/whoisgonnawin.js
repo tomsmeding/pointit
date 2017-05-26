@@ -1,4 +1,5 @@
 const { Module } = require('../module.js');
+const { multiMax } = require('../util.js');
 const _ = require('lodash');
 
 module.exports = class WhoIsGonnaWin extends Module {
@@ -17,18 +18,9 @@ module.exports = class WhoIsGonnaWin extends Module {
 
 	checkAnswer({ player }) {
 		const answerId = this.getAnswer(player);
-		const maxPoints = _.max(this.game.players, 'points').points;
-		const answer = _.find(this.game.players, p => p.id === answerId);
-		return answer && answer.points === maxPoints;
-	}
-
-	/*
-	checkAnswer({ player }) {
-		const answerId = this.getAnswer(player);
 		const correctAnswers = multiMax(this.game.players, 'points');
 		return _.some(correctAnswers, p => p.id === answerId);
 	}
-	*/
 }
 
 module.exports.friendly = 'Who\'s gonna win';
