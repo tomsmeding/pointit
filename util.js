@@ -64,7 +64,7 @@ async function sendAndWaitAll (items, fn, timeout) {
 }
 
 function multiMax (arr, field) {
-	const maxValue = _.max(arr, field)[field];
+	const maxValue = _.maxBy(arr, field)[field];
 	return _.filter(arr, x => x[field] === maxValue);
 }
 
