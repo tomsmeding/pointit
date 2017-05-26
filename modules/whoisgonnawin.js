@@ -4,7 +4,7 @@ const _ = require('lodash');
 module.exports = class WhoIsGonnaWin extends Module {
 	constructor(game, getCallback) {
 		super(game);
-		game.on('finish', getCallback());
+		game.on('game.prefinish', getCallback());
 	}
 
 	getCurrent() {

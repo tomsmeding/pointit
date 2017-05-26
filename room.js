@@ -126,19 +126,32 @@ class Game extends EventEmitter {
 				});
 			} while(instance.next());
 
-			this.emit('module.done', {
+			const emitInfo = {
 				module: instance,
 				index: i,
 				length: this.modules.length,
+			};
+
+			this.emit('module.prefinish', emitInfo);
+
+			// handle all remaining ready answers for this module.
+			const items = _.remove(answersReady, item => {
+				return item.module === module;
 			});
+			for (const { module, instance } of items) {
+				await this._checkAnswers(module, instance);
+			}
+
+			this.emit('module.finish', emitInfo);
 		}
 
-		this.emit('finish');
+		this.emit('game.prefinish');
 
-		for (const { module, instance } of answersReady) {
+		// handle all remaining ready answers.
+		const items = _.remove(answersReady);
+		for (const { module, instance } of items) {
 			await this._checkAnswers(module, instance);
 		}
-		_.remove(answersReady);
 
 		this.broadcast('game.finish', this.players.map(p => ({
 			id: p.id,
