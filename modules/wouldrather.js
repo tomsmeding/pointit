@@ -38,7 +38,7 @@ module.exports = class WouldRather extends Module {
 			.max(pair => pair[1].length)
 			.value();
 		const answerId = this.getAnswer(player);
-		return pair[1] === answerId;
+		return +(pair[0] === answerId);
 	}
 
 	provideAnswer(options) {

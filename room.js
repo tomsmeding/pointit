@@ -179,19 +179,18 @@ class Game extends EventEmitter {
 		// system) currently doesn't really work with multiple questions
 		// per module. Fix that.
 
-		const promises = this.activePlayers().map(p => {
-			// REVIEW: replace res, with an variable Number (points being
-			// given)>
-			const res = instance.checkAnswer({
-				player: p,
-			});
-			return Promise.resolve(res).then(res => [ p, res ]);
+		const promises = this.activePlayers().map(player => {
+			const promise = Promise.resolve(instance.checkAnswer({
+				player,
+			}));
+			return promise.then(points => [ player, points ]);
 		});
+
 		const pairs = await Promise.all(promises);
-		for (const [ player, answerCorrect ] of pairs) {
+		for (const [ player, points ] of pairs) {
 			// TODO: actually wait on clients here
-			player.points += answerCorrect;
-			player.connection.send('answer.correct', this.id, answerCorrect);
+			player.points += points;
+			player.connection.send('answer.result', this.id, points);
 		}
 	}
 
