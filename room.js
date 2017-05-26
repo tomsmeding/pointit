@@ -158,11 +158,7 @@ class Game extends EventEmitter {
 			points: p.points,
 		})));
 
-		const winners = multiMax(this.players, 'points')
-		console.log(`======= ${this.id} =======`);
-		console.log('Game finished!');
-		console.log('Winner(s):', _(winners).map(p => `${p.nickname} (${p.points} point(s))`).join(', '));
-		console.log('=====================');
+		this.emit('game.finish');
 	}
 
 	emit(type, ...args) {
@@ -241,6 +237,17 @@ class Game extends EventEmitter {
 		}));
 	}
 
+	printInfo(lines) {
+		console.log(`======== ${this.id} ========`);
+		for (let line of lines) {
+			if (!Array.isArray(line)) {
+				line = [ line ];
+			}
+			console.log(...line);
+		}
+		console.log('=======================');
+	}
+
 	toJSON() {
 		const fields = [
 			'id',
@@ -299,6 +306,22 @@ function generateGame(settings) {
 
 	const game = new Game(id, settings);
 	games[id] = game;
+	game.on('game.finish', () => {
+		const mapPlayers = players => {
+			return _(players)
+				.map(p => `${p.nickname} (${p.points} point(s))`)
+				.join(', ');
+		};
+
+		const winners = multiMax(game.players, 'points');
+		const losers = _.reject(game.players, x => _.some(winners, y => y.id === x.id));
+
+		game.printInfo([
+			[ 'Game finished!' ],
+			[ 'Winner(s):', mapPlayers(winners) ],
+			[ 'Loser(s):', mapPlayers(losers) ],
+		]);
+	});
 	return game;
 }
 
