@@ -165,7 +165,7 @@ class Game extends EventEmitter {
 		{
 			let arr = [ `emitted '${type}'` ];
 			if (args.length > 0) {
-				arr.push('with args');
+				arr.push(`with ${args.length} args`);
 				arr = arr.concat(args);
 			}
 			console.log(...arr);
