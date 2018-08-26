@@ -226,11 +226,11 @@ class Game extends EventEmitter {
 				const args = wrapped(player);
 				return player.connection.send(type, ...args);
 			},
-			timeout
+			timeout,
 		);
 
 		return responses.map(res => ({
-			player: res.item,
+			player: res.data,
 			res: res.res,
 			err: res.err,
 		}));
