@@ -12,7 +12,7 @@ module.exports = class WhoIsGonnaWin extends Module {
 		return {
 			question: 'Who is going to win this game?',
 			type: 'players',
-			answers: this._players(),
+			answers: this.players(),
 		};
 	}
 

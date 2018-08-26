@@ -23,7 +23,7 @@ module.exports = class WouldRather extends Module {
 		return {
 			question: questions[this.current],
 			type: 'players',
-			answers: this._players(player),
+			answers: this.players([ player ]),
 		};
 	}
 

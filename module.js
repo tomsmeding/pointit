@@ -12,12 +12,12 @@ class Module {
 	// REVIEW: do we want another way all around???
 	// REVIEW: put this somewhere else?
 	// util func
-	_players(player) {
+	players(without = []) {
 		let players = this.game.activePlayers();
 
-		if (player != null) {
-			players = players.filter(p => p.id !== player.id);
-		}
+		players = players.filter(p => {
+			return !without.any(x => x.id === p.id);
+		});
 
 		return players.map(p => ({
 			id: p.id,
