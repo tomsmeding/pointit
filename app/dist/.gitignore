@@ -1,5 +1,7 @@
 client.js
 client.js.map
+client.min.js
 spec.js
 spec.js.map
+spec.min.js
 _primus.js
