@@ -16,7 +16,7 @@ module.exports = class WhoIsGonnaWin extends Module {
 		};
 	}
 
-	checkAnswer({ player }) {
+	async checkAnswer({ player }) {
 		const answerId = this.getAnswer(player);
 		const correctAnswers = multiMax(this.game.players, 'points');
 		return _.some(correctAnswers, p => p.id === answerId) ? 5 : 0;

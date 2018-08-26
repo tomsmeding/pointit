@@ -57,7 +57,7 @@ module.exports = class WouldRather extends Module {
 			return this._checkAnswer(player);
 		}
 
-		return new Promise((resolve, reject) => {
+		return await new Promise((resolve, reject) => {
 			this.callbacks.push({
 				player,
 				resolve,

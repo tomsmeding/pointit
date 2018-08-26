@@ -1,4 +1,4 @@
-import m from 'mithril'
+import m from 'mithril';
 import _ from 'lodash';
 
 export default {
