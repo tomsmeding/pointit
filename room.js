@@ -13,9 +13,11 @@ class Game extends EventEmitter {
 	constructor(id, settings) {
 		super();
 
+		const defaults = _.mapValues(Game.SETTINGS, 'default');
+
 		this.id = id;
 		this.players = [];
-		this.settings = _.defaults(settings, Game.DEFAULT_SETTINGS);
+		this.settings = _.defaults(settings, defaults);
 
 		this.modules = this.settings.enabledModules.map(name => {
 			const module = getModule(name);
@@ -257,38 +259,36 @@ class Game extends EventEmitter {
 
 Game.SETTINGS = {
 	mode: {
-		type: 'string',
+		title: 'Mode',
+		type: String,
 		options: [ 'point', 'list' ],
 		default: 'point',
 		multiple: false,
 	},
-	countdownTime: {
-		type: 'number',
+	countdownTime: { // in seconds
+		title: 'Countdown time',
+		type: Number,
 		min: 1,
 		default: 5,
 	},
 	minimalPlayers: {
-		type: 'number',
+		title: 'Minimal amount of players',
+		type: Number,
 		min: 1,
 		default: 3,
 	},
-	allowLateJoin: {
-		type: 'boolean',
+	allowLateJoin: { // allow join after game has been started.
+		title: 'Allow late join',
+		type: Boolean,
 		default: false,
 	},
 	enabledModules: {
-		type: 'string',
+		title: 'Enabled modules',
+		type: [String],
 		options: getModules().map(m => m.name),
 		multiple: true,
+		default: getModules().map(m => m.name),
 	},
-};
-
-Game.DEFAULT_SETTINGS = {
-	mode: 'point', // one of: point, list
-	countdownTime: 5, // in seconds
-	minimalPlayers: 3,
-	allowLateJoin: false, // allow join after game has been started.
-	enabledModules: getModules().map(m => m.name),
 };
 
 /**
